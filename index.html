@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>dio - open source</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        
+            box-sizing: border-box;
+        }
+        a{
+            
+            color: #fff;
+        }
+       p{
+        color: #fff;
+       }
+        .container {
+            padding: 10px;
+           min-height: 100vh;
+            background-color: #222;
+        }
+
+        .search-container {
+            display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 15px;
+    position: sticky;
+    top: 0;
+    background-color: #222;
+    z-index: 1; 
+        }
+
+        .search-input {
+            padding: 10px;
+            font-size: 15px;
+            border: none;
+            border-radius: 5px 0 0 5px;
+            width: 200px;
+            outline: none;    
+        }
+
+        .search-button {
+            padding: 10px 20px;
+            font-size: 15px;
+            border: none;
+            border-radius: 0 5px 5px 0;
+            background-color: #007bff;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .search-button:hover {
+            background-color: #0056b3;
+        }
+
+    .table-container {
+display: flex;
+align-items: center;
+justify-content: center;
+      margin-top: 20px;
+    overflow-y: auto;
+    max-height: calc(100vh - 240px); 
+}
+
+.result-container {
+   
+    border-collapse: collapse;
+    
+}
+
+.result-container th,
+.result-container td {
+    padding: 10px;
+    border: 2px solid #ffffff;
+    text-align: center;
+    color: #fff;
+}
+
+.result-container thead {
+    position: sticky;
+    top: 0;
+    background-color: #333; 
+}
+
+.result-table tr {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+        .profile-button {
+            padding: 5px 10px;
+            font-size: 14px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            
+        }
+        .profile-button a{
+            text-decoration: none;
+        }
+
+        .profile-button:hover {
+            background-color: #0056b3;
+          
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+       
+        <div class="search-container">
+            <img src="https://lp.dio.me/wp-content/uploads/2023/03/LOGO-DIO-COLOR.png" width="100">
+            <div>
+            <input type="text" class="search-input" id="searchInput" placeholder="Digite o nome de usuário">
+            <button class="search-button" id="searchButton">Pesquisar</button>
+        </div>
+        </div>
+      <div class="table-container">
+        <table class="result-container">
+            <thead>
+                <tr>
+                    <th>Readme.md</th>
+                    <th>Nome</th>
+                    <th>Perfil</th>
+                </tr>
+            </thead>
+            <tbody class="result-table">
+               
+             
+            </tbody>
+        </table>
+    </div>
+    </div>
+
+    <script>
+     const url = 'https://api.github.com/repos/elidianaandrade/dio-lab-open-source/contents/community';
+     var database = [];
+     var results = [];
+
+fetch(url)
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('A requisição falhou. Status: ' + response.status);
+    }
+    return response.text();
+  })
+  .then(data => {
+    database = JSON.parse(data);
+    console.log(database);
+  })
+  .catch(error => {
+    console.error('Ocorreu um erro:', error);
+  });
+  document.getElementById('searchButton').addEventListener('click', async function() {
+            var searchQuery = document.getElementById('searchInput').value;
+            console.log(searchQuery);
+            if(searchQuery != ""){
+            results = await searchInDatabase(searchQuery);    
+            const tableHTML = createtableHTML(results);
+            if(results.length == 0){
+                document.getElementsByClassName('result-table')[0].innerHTML =  "<p>Nenhum usuário foi encontrado!</p>";   
+            }else{
+            document.getElementsByClassName('result-table')[0].innerHTML = tableHTML;
+            }
+        }
+ });
+ function searchInDatabase(textSearch){
+    return database.filter(database => database.name.startsWith(textSearch));
+ }
+ 
+function createtableHTML(database) {
+   
+    let html = '';
+    for (let i = 0; i < results.length; i++) {
+        const objeto = database[i];
+        objeto.name = objeto.name.replace(".md", "");
+        html += '<tr>';
+        html += `<td><a href="https://github.com/elidianaandrade/dio-lab-open-source/blob/main/${objeto.path}" target="_blank">readme.md</td>`;
+        html += '<td>' + objeto.name + '</td>';
+        html += `<td><button class="profile-button"><a href="https://github.com/${objeto.name}" target="_blank">Ir para o Perfil</a></button></td>`;
+        html += '</tr>';
+    }
+    return html;
+}
+
+    </script>
+</body>
+</html>
